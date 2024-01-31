@@ -109,10 +109,9 @@ func main() {
 	}
 	log.Printf("Using SUAPP address: %s", suappHandle.Address().Hex())
 
+	// craft "rollup tx"
 	log.Println("Creating rollup tx bytes")
 	addr := suaveAccount.Address()
-	// craft "rollup tx" - for the sake of the example this is just bytes
-	// in reality, this would be a tx that the rollup node received from a user
 	rollupTx, err := fr.L1.SignTx(suaveAccount, &types.LegacyTx{
 		To:       &addr,
 		Value:    big.NewInt(1234),
@@ -123,7 +122,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	rollupTxBytes, err := rollupTx.MarshalBinary()
+	rollupTxBytes, err := rollupTx.MarshalJSON()
 	if err != nil {
 		log.Fatal(err)
 	}
