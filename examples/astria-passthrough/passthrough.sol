@@ -15,7 +15,7 @@ contract Passthrough {
         bytes memory rollupTx = Suave.confidentialInputs();
 
         // Send POST request to the composer
-        Suave.submitBundleJsonRPC(composerURL, composerEndpoint, abi.encode(rollupTx));
+        Suave.submitBundleJsonRPC(composerURL, composerEndpoint, rollupTx);
         emit NewBundle(msg.sender, rollupTx);
     }
 }

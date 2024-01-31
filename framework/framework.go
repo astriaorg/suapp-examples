@@ -254,6 +254,11 @@ func (c *Chain) DeployContract(path string) *Contract {
 	return &Contract{addr: receipt.ContractAddress, clt: c.clt, kettleAddr: c.kettleAddr, abi: artifact.Abi, Contract: contract}
 }
 
+func (c *Chain) GetContract(addr common.Address, abi *abi.ABI) *Contract {
+	clt := sdk.GetContract(addr, abi, c.clt)
+	return &Contract{addr: addr, clt: c.clt, kettleAddr: c.kettleAddr, abi: abi, Contract: clt}
+}
+
 func (c *Contract) Ref(acct *PrivKey) *Contract {
 	clt := sdk.NewClient(c.clt.RPC().Client(), acct.Priv, c.kettleAddr)
 
