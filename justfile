@@ -15,3 +15,6 @@ test rollupBundle:
     curl -X POST -H "X-Flashbots-Signature: 123" \
         -d '{"id": "1", "jsonrpc": "2.0", "method": "rollupBundle", "params": "dGVzdA=="}' \
         localhost:8080/rollupBundle
+
+geth:
+    suave-geth --suave.dev --suave.eth.external-whitelist localhost

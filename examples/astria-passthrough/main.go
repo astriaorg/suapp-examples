@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/hex"
-	"encoding/json"
 	"io"
 	"log"
 	"math/big"
@@ -19,14 +18,8 @@ type config struct {
 	ComposerURL string `env:"COMPOSER_URL, default=local"`
 }
 
-type bundle struct {
-	Id      string `json:"id"`
-	Jsonrpc string `json:"jsonrpc"`
-	Method  string `json:"method"`
-	Params  []byte `json:"params"`
-}
-
 func bundleHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Handling bundle request")
 	kettleSignature := r.Header.Get("X-Flashbots-Signature")
 	if kettleSignature == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -42,15 +35,15 @@ func bundleHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to read body: %s\n", err.Error())
 		return
 	}
-	bundle := bundle{}
-	err = json.Unmarshal(body, &bundle)
+	bundle := types.Transaction{}
+	err = bundle.UnmarshalJSON(body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, "failed to unmarshal bundle")
 		log.Printf("Failed to unmarshal bundle: %s\n", err.Error())
 		return
 	}
-	log.Printf("Received bundle: %s\n", bundle)
+	log.Printf("Received bundle with tx: %s\n", bundle.Hash())
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -126,11 +119,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("Rollup tx: %s\n", rollupTx.Hash())
 
 	// submit tx with confidential inputs
 	log.Println("Sending transaction to SUAPP")
 	receipt := suappHandle.SendTransaction("makeBundle", []interface{}{}, rollupTxBytes)
-	log.Printf("Transaction receipt: %s", receipt.TxHash.Hex())
+	log.Printf("Transaction receipt: %s\n", receipt.TxHash)
 
 	select {}
 }
